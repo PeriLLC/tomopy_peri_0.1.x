@@ -37,10 +37,11 @@ CXXOBJS     = utils_cilk.o pml_quad_cilk.o pml_hybrid_cilk.o ospml_quad_cilk.o o
 CXXSRCS     = utils_cilk.cpp pml_quad_cilk.cpp pml_hybrid_cilk.cpp ospml_quad_cilk.cpp ospml_hybrid_cilk.cpp
 CCOBJS     = recon.o 
 CCSRCS     = recon.cpp
-
-
+TESTSRCS   = main.cpp ../cnpy/cnpy.cpp
+TESTOBJS   = main.o cnpy.o
 
 TARGET   = libtomoperi_phi.so
+TEST    = tomoperi_phi_test.exe
 
 $(TARGET):	$(CXXOBJS) $(CCOBJS)
 	$(CXX) -o $(TARGET) $(CXXOBJS) $(CCOBJS) $(LIBS) $(LNKFLAGS) 
@@ -51,7 +52,11 @@ $(CCOBJS):	$(CCSRCS)
 $(CXXOBJS):	$(CXXSRCS)
 	$(CXX) -c $(CXXFLAGS) $(CXXSRCS)
 
-all:	$(TARGET)
+$(TEST):	$(TARGET)
+	$(CXX) -o $(TEST) $(TESTSRCS) -Wl,-rpath '-Wl,$$ORIGIN' -L. -ltomoperi_phi  
+
+test:	$(TEST)
 
 clean:
-	rm -f $(CCOBJS) $(CXXOBJS) $(TARGET)
+	rm -f $(CCOBJS) $(CXXOBJS) $(TESTOBJS) $(TARGET) $(TEST)
+
