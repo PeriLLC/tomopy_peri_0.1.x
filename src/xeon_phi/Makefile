@@ -26,6 +26,7 @@ CXX      = icpc
 # for check vec optimization
 #CXXFLAG -qopt-report=3 -qopt-report-phase=vec 
 
+#-Wl,-rpath '-Wl,$$ORIGIN' -L. -ltomoperi_phi
 # for run
 CXXFLAGS = -O3 -fPIC
 LNKFLAGS = -ldl -shared
@@ -53,7 +54,7 @@ $(CXXOBJS):	$(CXXSRCS)
 	$(CXX) -c $(CXXFLAGS) $(CXXSRCS)
 
 $(TEST):	$(TARGET)
-	$(CXX) -o $(TEST) $(TESTSRCS) -Wl,-rpath '-Wl,$$ORIGIN' -L. -ltomoperi_phi  
+	$(CXX) -o $(TEST) $(TESTSRCS)  -ldl -Wl,-rpath '-Wl,$$ORIGIN' -L. -ltomoperi_phi
 
 test:	$(TEST)
 
