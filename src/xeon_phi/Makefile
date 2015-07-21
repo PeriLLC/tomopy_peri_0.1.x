@@ -11,23 +11,10 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with TomograPeri.  If not, see <http://www.gnu.org/licenses/>.
 
-
+CC       = icc
 
 CXX      = icpc
 
-# for survey and suitablity, and run
-#CXXFLAGS = -gdwarf-3 -V -O3 -fno-inline-functions 
-#LNKFLAGS = -ldl
-
-# for correctnexx
-#CXXFLAGS = -g -V -O0
-#LNKFLAGS = -Bdynamic -ldl
- 
-# for check vec optimization
-#CXXFLAG -qopt-report=3 -qopt-report-phase=vec 
-
-#-Wl,-rpath '-Wl,$$ORIGIN' -L. -ltomoperi_phi
-# for run
 CXXFLAGS = -O3 -fPIC
 LNKFLAGS = -ldl -shared
 

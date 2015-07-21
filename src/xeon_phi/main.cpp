@@ -24,7 +24,6 @@
 using namespace std;
 using namespace cnpy;
 
-#define LARGESET false
 
 
 //  Windows
@@ -282,8 +281,17 @@ int testData( bool largeSet){
 	return 0;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
+	int opt = 0;
+	bool isLarge = false;
+	while ((opt = getopt(argc, argv, "s:")) != -1) {
+		isLarge= ((opt=='s')&&(optarg[0]=='l'));
+	}		
+	
 
-	return testData(LARGESET);
+	return testData(isLarge);
 }
+
+
+
