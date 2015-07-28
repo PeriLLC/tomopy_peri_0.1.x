@@ -35,6 +35,7 @@ else:
 # --------------------------------------------------------------------
 
 def pml_quad_phi(data, dx, dy, dz, center, theta, recon, n_gridx, n_gridy, num_iter, reg_pars):
+'''
     float *data,
     int dx,
     int dy,
@@ -46,7 +47,7 @@ def pml_quad_phi(data, dx, dy, dz, center, theta, recon, n_gridx, n_gridy, num_i
     int ngridy,
     int num_iter,
     float *reg_pars);
-
+'''
     # Call C function.
     c_float_p = ctypes.POINTER(ctypes.c_float)
     librecon_phi.pml_quad.restype = ctypes.POINTER(ctypes.c_void_p)
