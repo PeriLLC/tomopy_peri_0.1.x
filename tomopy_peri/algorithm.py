@@ -23,91 +23,116 @@ from __future__ import absolute_import
 import tomopy
 import logging
 import numpy as np
-#from tomopy_peri.pml import pml_cuda
+import tomopy_peri.xeon_phi as xeon_phi
 
 # --------------------------------------------------------------------
 def recon_accelerated(
         tomo, theta, center=None, emission=True, algorithm=None, hardware=None,
         implementaion=None, acc_option=None, init_recon=None, **kwargs):
 
-def _pml_cuda(self, emission=True,
-         iters=1, num_grid=None, beta=1,
-         init_matrix=None, overwrite=True,
-         channel=None):
-    # Dimensions:
-    num_pixels = self.data.shape[3]
+    allowed_kwargs = {
+        'ospml_hybrid': ['num_gridx', 'num_gridy', 'num_iter',
+                         'reg_par', 'num_block', 'ind_block'],
+        'ospml_quad': ['num_gridx', 'num_gridy', 'num_iter',
+                       'reg_par', 'num_block', 'ind_block'],
+        'pml_hybrid': ['num_gridx', 'num_gridy', 'num_iter', 'reg_par'],
+        'pml_quad': ['num_gridx', 'num_gridy', 'num_iter', 'reg_par'],
+    }
 
-    # This works with radians.
-    if np.max(self.theta) > 90:  # then theta is obviously in radians.
-        self.theta *= np.pi / 180
+    generic_kwargs = ['num_gridx', 'num_gridy', 'options']
 
-    # Pad data.
-    if emission:
-        data = self.apply_padding(overwrite=False, pad_val=0)
+    if isinstance(algorithm, str):
+        # Check whether we have an allowed method
+        if not algorithm in allowed_kwargs:
+            raise ValueError('Keyword "algorithm" must be one of %s.' %
+                             (list(allowed_kwargs.keys()),))
+        # Make sure have allowed kwargs appropriate for algorithm.
+        for key in kwargs:
+            if key not in allowed_kwargs[algorithm]:
+                raise ValueError('%s keyword not in allowed keywords %s' %
+                                 (key, allowed_kwargs[algorithm]))
+        # Set kwarg defaults.
+        for kw in allowed_kwargs[algorithm]:
+            kwargs.setdefault(kw, kwargs_defaults[kw])
     else:
-        data = self.apply_padding(overwrite=False, pad_val=1)
-        data = -np.log(data)
+        raise ValueError('Keyword "algorithm" must be String.')
 
-    # Adjust center according to padding.
-    if not hasattr(self, 'center'):
-        self.center = self.data.shape[3] / 2
-    center = self.center + (data.shape[3] - num_pixels) / 2.
+    # Initialize tomography data.
+    tomo = _init_tomo(tomo, emission)
 
-    # Set default parameters.
-    if num_grid is None or num_grid > num_pixels:
-        num_grid = np.floor(data.shape[3] / np.sqrt(2))
-    if init_matrix is None:
-        init_matrix = np.ones((data.shape[2], num_grid, num_grid),
-                              dtype='float32')
+    # Generate kwargs for the algorithm.
+    kwargs_defaults = _get_algorithm_kwargs(tomo.shape)
 
-    # Check again.
-    if not isinstance(data, np.float32):
-        data = np.array(data, dtype='float32', copy=False)
+    # Generate args for the algorithm.
+    args = _get_algorithm_args(tomo.shape, theta, center)
 
-    if not isinstance(self.theta, np.float32):
-        theta = np.array(self.theta, dtype='float32')
+    # Initialize reconstruction.
+    recon = _init_recon(
+        (tomo.shape[1], kwargs['num_gridx'], kwargs['num_gridy']),
+        init_recon)
+    return _do_recon(
+        tomo, recon, _get_func(algorithm), args, kwargs)
 
-    if not isinstance(center, np.float32):
-        center = np.array(center, dtype='float32')
 
-    if not isinstance(iters, np.int32):
-        iters = np.array(iters, dtype='int32')
+def _init_tomo(tomo, emission):
+    tomo = dtype.as_float32(tomo)
+    if not emission:
+        tomo = -np.log(tomo)
+    return tomo
 
-    if not isinstance(num_grid, np.int32):
-        num_grid = np.array(num_grid, dtype='int32')
 
-    if not isinstance(init_matrix, np.float32):
-        init_matrix = np.array(init_matrix, dtype='float32', copy=False)
-
-    # Initialize and perform reconstruction.
-    if channel:
-        data_recon = pml_cuda(data[channel,:,:,:], theta, center, num_grid, iters, beta, init_matrix)
+def _init_recon(shape, init_recon, val=1e-6):
+    if init_recon is None:
+        recon = val * np.ones(shape, dtype='float32')
     else:
-        data_list=[]
-        for channel in range(data.shape[0]):
-            try:
-                self.logger.info("pml_cuda: now reconstructing {:s}".format(self.channel_names[channel]))
-            except:
-                pass
-            data_list.append(pml_cuda(data[channel,:,:,:], theta, center, num_grid, iters, beta, init_matrix))
-        recon_shape = data_list[0].shape
-        data_recon = np.zeros((data.shape[0], recon_shape[0], recon_shape[1], recon_shape[2]))
-        for i, recon in enumerate(data_list):
-            data_recon[i,:,:,:] = recon
+        recon = dtype.as_float32(recon)
+    return recon
 
-    # Update log.
-    self.logger.debug("pml_cuda: emission: " + str(emission))
-    self.logger.debug("pml_cuda: iters: " + str(iters))
-    self.logger.debug("pml_cuda: center: " + str(center))
-    self.logger.debug("pml_cuda: num_grid: " + str(num_grid))
-    self.logger.debug("pml_cuda: beta: " + str(beta))
-    self.logger.info("pml_cuda [ok]")
 
-    # Update returned values.
-    if overwrite:
-        self.data_recon = data_recon
+def _get_func(algorithm):
+    if algorithm == 'ospml_hybrid':
+        func = xeon_phi.c_ospml_hybrid
+    elif algorithm == 'ospml_quad':
+        func = xeon_phi.c_ospml_quad
+    elif algorithm == 'pml_hybrid':
+        func = xeon_phi.c_pml_hybrid
+    elif algorithm == 'pml_quad':
+        func = xeon_phi.c_pml_quad
     else:
-        return data_recon
+        raise ValueError('Algorithm %s not supported yet!' % (algorithm))
+    return func
 
 
-setattr(tomopy.xftomo.xftomo_dataset.XFTomoDataset, 'pml_cuda', _pml_cuda)
+def _do_recon(tomo, recon, func, args, kwargs):
+    # Zip arguments.
+    _args = []
+    # Generate sorted args.
+    _args.append(tomo)
+    if args is not None:
+        for a in args:
+            _args.append(a)
+    _args.append(recon)
+    if kwargs is not None:
+        _args.append(kwargs)
+    return func(_args)
+
+
+def _get_algorithm_args(shape, theta, center):
+    dx, dy, dz = shape
+    theta = dtype.as_float32(theta)
+    center = get_center(shape, center)
+    return (dx, dy, dz, center, theta)
+
+
+def _get_algorithm_kwargs(shape):
+    dx, dy, dz = shape
+    return {
+        'num_gridx': dz,
+        'num_gridy': dz,
+        'filter_name': np.array('shepp', dtype=(str, 16)),
+        'num_iter': dtype.as_int32(1),
+        'reg_par': np.ones(10, dtype='float32'),
+        'num_block': dtype.as_int32(1),
+        'ind_block': np.arange(0, dx, dtype='float32'),
+        'options': {},
+    }

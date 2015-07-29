@@ -34,31 +34,20 @@ else:
 
 # --------------------------------------------------------------------
 
-def pml_quad_phi(data, dx, dy, dz, center, theta, recon, n_gridx, n_gridy, num_iter, reg_pars):
-'''
-    float *data,
-    int dx,
-    int dy,
-    int dz,
-    float *center,
-    float *theta,
-    float *recon,
-    int ngridx,
-    int ngridy,
-    int num_iter,
-    float *reg_pars);
-'''
+def c_pml_quad(data, dx, dy, dz, center, theta, recon, n_gridx, n_gridy, num_iter, reg_pars):
+
     # Call C function.
     c_float_p = ctypes.POINTER(ctypes.c_float)
     librecon_phi.pml_quad.restype = ctypes.POINTER(ctypes.c_void_p)
     librecon_phi.pml_quad(data.ctypes.data_as(c_float_p),
+                  ctypes.c_int(dx),
+                  ctypes.c_int(dy),
+                  ctypes.c_int(dz),
+                  center.ctypes.data_as(c_float_p),
                   theta.ctypes.data_as(c_float_p),
-                  ctypes.c_float(center),
-                  ctypes.c_int(num_projections),
-                  ctypes.c_int(num_slices),
-                  ctypes.c_int(num_pixels),
-                  ctypes.c_int(num_grid),
-                  ctypes.c_int(iters),
-                  ctypes.c_float(beta),
-                  init_matrix.ctypes.data_as(c_float_p))
-    return init_matrix
+                  recon.ctypes.data_as(c_float_p),
+                  ctypes.c_int(ngridx),
+                  ctypes.c_int(ngridy),
+                  ctypes.c_int(num_iter),
+                  reg_pars.ctypes.data_as(c_float_p))
+    return recon
