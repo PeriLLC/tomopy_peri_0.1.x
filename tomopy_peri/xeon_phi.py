@@ -21,6 +21,7 @@
 import numpy as np
 import os
 import ctypes
+import tomopy.util.dtype as dtype
 
 # --------------------------------------------------------------------
 
@@ -34,20 +35,21 @@ else:
 
 # --------------------------------------------------------------------
 
-def c_pml_quad(data, dx, dy, dz, center, theta, recon, n_gridx, n_gridy, num_iter, reg_pars):
-
+def c_pml_quad(args):
+    data=args[0]
+    recon=args[6]
     # Call C function.
     c_float_p = ctypes.POINTER(ctypes.c_float)
     librecon_phi.pml_quad.restype = ctypes.POINTER(ctypes.c_void_p)
     librecon_phi.pml_quad(data.ctypes.data_as(c_float_p),
-                  ctypes.c_int(dx),
-                  ctypes.c_int(dy),
-                  ctypes.c_int(dz),
-                  center.ctypes.data_as(c_float_p),
-                  theta.ctypes.data_as(c_float_p),
-                  recon.ctypes.data_as(c_float_p),
-                  ctypes.c_int(ngridx),
-                  ctypes.c_int(ngridy),
-                  ctypes.c_int(num_iter),
-                  reg_pars.ctypes.data_as(c_float_p))
+        dtype.as_c_int(args[1]),  # dx
+        dtype.as_c_int(args[2]),  # dy
+        dtype.as_c_int(args[3]),  # dz
+        dtype.as_c_float_p(args[4]),  # center
+        dtype.as_c_float_p(args[5]),  # theta
+        recon.ctypes.data_as(c_float_p),
+        dtype.as_c_int(args[7]['num_gridx']),
+        dtype.as_c_int(args[7]['num_gridy']),
+        dtype.as_c_int(args[7]['num_iter']),
+        dtype.as_c_float_p(args[7]['reg_par']))
     return recon

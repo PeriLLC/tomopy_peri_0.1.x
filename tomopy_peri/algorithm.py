@@ -23,12 +23,14 @@ from __future__ import absolute_import
 import tomopy
 import logging
 import numpy as np
+import tomopy.util.dtype as dtype
+from tomopy.sim.project import angles, get_center
 import tomopy_peri.xeon_phi as xeon_phi
 
 # --------------------------------------------------------------------
 def recon_accelerated(
         tomo, theta, center=None, emission=True, algorithm=None, hardware=None,
-        implementaion=None, acc_option=None, init_recon=None, **kwargs):
+        acc_option=None, init_recon=None, **kwargs):
 
     allowed_kwargs = {
         'ospml_hybrid': ['num_gridx', 'num_gridy', 'num_iter',
@@ -40,6 +42,9 @@ def recon_accelerated(
     }
 
     generic_kwargs = ['num_gridx', 'num_gridy', 'options']
+
+    # Generate kwargs for the algorithm.
+    kwargs_defaults = _get_algorithm_kwargs(tomo.shape)
 
     if isinstance(algorithm, str):
         # Check whether we have an allowed method
@@ -59,9 +64,6 @@ def recon_accelerated(
 
     # Initialize tomography data.
     tomo = _init_tomo(tomo, emission)
-
-    # Generate kwargs for the algorithm.
-    kwargs_defaults = _get_algorithm_kwargs(tomo.shape)
 
     # Generate args for the algorithm.
     args = _get_algorithm_args(tomo.shape, theta, center)
@@ -85,7 +87,7 @@ def _init_recon(shape, init_recon, val=1e-6):
     if init_recon is None:
         recon = val * np.ones(shape, dtype='float32')
     else:
-        recon = dtype.as_float32(recon)
+        recon = dtype.as_float32(init_recon)
     return recon
 
 

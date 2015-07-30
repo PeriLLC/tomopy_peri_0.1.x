@@ -212,7 +212,7 @@ icpc_extension = Extension('lib.recon_phi',
                     library_dirs =[ICPCLIB],
                     extra_compile_args = ICPC_EXTRA_COMPILE_ARGS)
 
-setup_cuda_args = dict(
+setup_icpc_args = dict(
         name = 'tomopy_peri',
         version = VERSION,
         packages=find_packages(),
@@ -240,5 +240,5 @@ setup_cuda_args = dict(
                     'bdist_rpm': {'requires': 'tomopy = 0.1.11'}})
 
 if __name__ == "__main__":
-    setup(**setup_cuda_args)
+    setup(**setup_icpc_args)
 

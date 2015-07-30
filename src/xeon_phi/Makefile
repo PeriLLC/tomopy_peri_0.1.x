@@ -11,7 +11,7 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with TomograPeri.  If not, see <http://www.gnu.org/licenses/>.
 
-CC       = icc
+CC       = gcc
 
 CXX      = icpc
 
@@ -41,7 +41,7 @@ $(CXXOBJS):	$(CXXSRCS)
 	$(CXX) -c $(CXXFLAGS) $(CXXSRCS)
 
 $(TEST):	$(TARGET)
-	$(CXX) -o $(TEST) $(TESTSRCS)  -ldl -Wl,-rpath '-Wl,$$ORIGIN' -L. -ltomoperi_phi
+	$(CC) -o $(TEST) $(TESTSRCS)  -ldl -Wl,-rpath '-Wl,$$ORIGIN' -L. -ltomoperi_phi -lstdc++
 
 test:	$(TEST)
 
