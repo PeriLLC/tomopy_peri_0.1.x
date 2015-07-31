@@ -32,7 +32,8 @@ TARGET   = libtomoperi_phi.so
 TEST    = tomoperi_phi_test.exe
 
 $(TARGET):	$(CXXOBJS) $(CCOBJS)
-	$(CXX) -o $(TARGET) $(CXXOBJS) $(CCOBJS) $(LIBS) $(LNKFLAGS) 
+	mkdir -p $(OUT)
+	$(CXX) -o $(OUT)/$(TARGET) $(CXXOBJS) $(CCOBJS) $(LIBS) $(LNKFLAGS) 
 
 $(CCOBJS):	$(CCSRCS)
 	$(CC) -c $(CCFLAGS) $(CCSRCS)
@@ -41,7 +42,7 @@ $(CXXOBJS):	$(CXXSRCS)
 	$(CXX) -c $(CXXFLAGS) $(CXXSRCS)
 
 $(TEST):	$(TARGET)
-	$(CC) -o $(TEST) $(TESTSRCS)  -ldl -Wl,-rpath '-Wl,$$ORIGIN' -L. -ltomoperi_phi -lstdc++
+	$(CC) -o $(OUT)/$(TEST) $(TESTSRCS)  -ldl -Wl,-rpath '-Wl,$$ORIGIN' -L$(OUT) -ltomoperi_phi -lstdc++
 
 test:	$(TEST)
 
