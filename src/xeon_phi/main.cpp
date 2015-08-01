@@ -244,6 +244,20 @@ int testData( bool largeSet){
 		recon[i]=1e-6;
 	cpu0  = get_cpu_time();
 	wall0 = get_wall_time();
+	pml_hybrid(data, dx, dy, dz, center, theta,
+	    recon, ngridx, ngridy, num_iter, reg_pars);
+	cpu1  = get_cpu_time();
+	wall1 = get_wall_time();
+
+	cout << "Testing pml_hybrid, error counts: " <<
+			assert_allclose(recon,pml_hybrid_recon,dy*ngridx*ngridy) <<"/" << recon_len << endl;
+    cout << "Wall Time = " << wall1 - wall0 << endl;
+    cout << "CPU Time  = " << cpu1  - cpu0  << endl;
+
+	for (int i=0;i<recon_len;i++)
+		recon[i]=1e-6;
+	cpu0  = get_cpu_time();
+	wall0 = get_wall_time();
 	pml_quad(data, dx, dy, dz, center, theta,
 	    recon, ngridx, ngridy, num_iter, reg_pars);
 	cpu1  = get_cpu_time();
@@ -254,19 +268,6 @@ int testData( bool largeSet){
     cout << "Wall Time = " << wall1 - wall0 << endl;
     cout << "CPU Time  = " << cpu1  - cpu0  << endl;
 
-	for (int i=0;i<recon_len;i++)
-		recon[i]=1e-6;
-	cpu0  = get_cpu_time();
-	wall0 = get_wall_time();
-	pml_hybrid(data, dx, dy, dz, center, theta,
-	    recon, ngridx, ngridy, num_iter, reg_pars);
-	cpu1  = get_cpu_time();
-	wall1 = get_wall_time();
-
-	cout << "Testing pml_hybrid, error counts: " <<
-			assert_allclose(recon,pml_hybrid_recon,dy*ngridx*ngridy) <<"/" << recon_len << endl;
-    cout << "Wall Time = " << wall1 - wall0 << endl;
-    cout << "CPU Time  = " << cpu1  - cpu0  << endl;
 
 	delete []data;
 	delete []theta;

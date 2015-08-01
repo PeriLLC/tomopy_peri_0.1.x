@@ -26,6 +26,7 @@ import numpy as np
 import tomopy.util.dtype as dtype
 from tomopy.sim.project import angles, get_center
 import tomopy_peri.xeon_phi as xeon_phi
+import os.path
 
 # --------------------------------------------------------------------
 def recon_accelerated(
@@ -92,6 +93,10 @@ def _init_recon(shape, init_recon, val=1e-6):
 
 
 def _get_func(algorithm,hardware):
+    if hardware == None :
+        hardware = _get_hardware()
+        print ('Hardware %s is chosen by default. ' %hardware)
+
     if hardware == 'Xeon_Phi' :
         if algorithm == 'ospml_hybrid':
             func = xeon_phi.c_ospml_hybrid
@@ -107,6 +112,15 @@ def _get_func(algorithm,hardware):
         raise ValueError('Hardware %s not supported yet!' % (hardware))
     return func
 
+def _get_hardware() :
+    libpath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'lib/libtomoperi_phi.dll'))
+    libpath1 = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'lib/libtomoperi_phi.so'))
+    if os.path.isfile(libpath) or os.path.isfile(libpath1) :
+        return 'Xeon_Phi';
+    libpath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'lib/libtomoperi_cuda.dll'))
+    libpath1 = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'lib/libtomoperi_cuda.so'))
+    if os.path.isfile(libpath) or os.path.isfile(libpath1) :
+        return 'Nvidia_GPU';
 
 def _do_recon(tomo, recon, func, args, kwargs):
     # Zip arguments.
