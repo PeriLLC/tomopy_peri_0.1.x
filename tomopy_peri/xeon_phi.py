@@ -43,6 +43,68 @@ else:
 
 # --------------------------------------------------------------------
 
+
+def c_ospml_hybrid(*args):
+    data=args[0]
+    recon=args[6]
+    # Call C function.
+    c_float_p = ctypes.POINTER(ctypes.c_float)
+    librecon_phi.ospml_hybrid.restype = ctypes.POINTER(ctypes.c_void_p)
+    librecon_phi.ospml_hybrid(data.ctypes.data_as(c_float_p),
+        dtype.as_c_int(args[1]),  # dx
+        dtype.as_c_int(args[2]),  # dy
+        dtype.as_c_int(args[3]),  # dz
+        dtype.as_c_float_p(args[4]),  # center
+        dtype.as_c_float_p(args[5]),  # theta
+        recon.ctypes.data_as(c_float_p),
+        dtype.as_c_int(args[7]['num_gridx']),
+        dtype.as_c_int(args[7]['num_gridy']),
+        dtype.as_c_int(args[7]['num_iter']),
+        dtype.as_c_float_p(args[7]['reg_par']),
+        dtype.as_c_int(args[7]['num_block']),
+        dtype.as_c_float_p(args[7]['ind_block']))
+
+
+def c_ospml_quad(*args):
+    data=args[0]
+    recon=args[6]
+    # Call C function.
+    c_float_p = ctypes.POINTER(ctypes.c_float)
+    librecon_phi.ospml_quad.restype = ctypes.POINTER(ctypes.c_void_p)
+    librecon_phi.ospml_quad(data.ctypes.data_as(c_float_p),
+        dtype.as_c_int(args[1]),  # dx
+        dtype.as_c_int(args[2]),  # dy
+        dtype.as_c_int(args[3]),  # dz
+        dtype.as_c_float_p(args[4]),  # center
+        dtype.as_c_float_p(args[5]),  # theta
+        recon.ctypes.data_as(c_float_p),
+        dtype.as_c_int(args[7]['num_gridx']),
+        dtype.as_c_int(args[7]['num_gridy']),
+        dtype.as_c_int(args[7]['num_iter']),
+        dtype.as_c_float_p(args[7]['reg_par']),
+        dtype.as_c_int(args[7]['num_block']),
+        dtype.as_c_float_p(args[7]['ind_block']))
+
+
+def c_pml_hybrid(args):
+    data=args[0]
+    recon=args[6]
+    # Call C function.
+    c_float_p = ctypes.POINTER(ctypes.c_float)
+    librecon_phi.pml_hybrid.restype = ctypes.POINTER(ctypes.c_void_p)
+    librecon_phi.pml_hybrid(data.ctypes.data_as(c_float_p),
+        dtype.as_c_int(args[1]),  # dx
+        dtype.as_c_int(args[2]),  # dy
+        dtype.as_c_int(args[3]),  # dz
+        dtype.as_c_float_p(args[4]),  # center
+        dtype.as_c_float_p(args[5]),  # theta
+        recon.ctypes.data_as(c_float_p),
+        dtype.as_c_int(args[7]['num_gridx']),
+        dtype.as_c_int(args[7]['num_gridy']),
+        dtype.as_c_int(args[7]['num_iter']),
+        dtype.as_c_float_p(args[7]['reg_par']))
+
+
 def c_pml_quad(args):
     data=args[0]
     recon=args[6]

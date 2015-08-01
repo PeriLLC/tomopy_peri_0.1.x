@@ -73,7 +73,7 @@ def recon_accelerated(
         (tomo.shape[1], kwargs['num_gridx'], kwargs['num_gridy']),
         init_recon)
     return _do_recon(
-        tomo, recon, _get_func(algorithm), args, kwargs)
+        tomo, recon, _get_func(algorithm,hardware), args, kwargs)
 
 
 def _init_tomo(tomo, emission):
@@ -91,17 +91,20 @@ def _init_recon(shape, init_recon, val=1e-6):
     return recon
 
 
-def _get_func(algorithm):
-    if algorithm == 'ospml_hybrid':
-        func = xeon_phi.c_ospml_hybrid
-    elif algorithm == 'ospml_quad':
-        func = xeon_phi.c_ospml_quad
-    elif algorithm == 'pml_hybrid':
-        func = xeon_phi.c_pml_hybrid
-    elif algorithm == 'pml_quad':
-        func = xeon_phi.c_pml_quad
-    else:
-        raise ValueError('Algorithm %s not supported yet!' % (algorithm))
+def _get_func(algorithm,hardware):
+    if hardware == 'xeon_phi' :
+        if algorithm == 'ospml_hybrid':
+            func = xeon_phi.c_ospml_hybrid
+        elif algorithm == 'ospml_quad':
+            func = xeon_phi.c_ospml_quad
+        elif algorithm == 'pml_hybrid':
+            func = xeon_phi.c_pml_hybrid
+        elif algorithm == 'pml_quad':
+            func = xeon_phi.c_pml_quad
+        else:
+            raise ValueError('Algorithm %s not supported yet!' % (algorithm))
+    else :
+        raise ValueError('Hardware %s not supported yet!' % (hardware))
     return func
 
 
