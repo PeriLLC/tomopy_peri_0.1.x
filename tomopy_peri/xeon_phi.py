@@ -24,6 +24,14 @@ import ctypes
 import tomopy.util.dtype as dtype
 
 # --------------------------------------------------------------------
+TOMOPERI_LD_LIBRARY_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'lib'))
+LD_LIBRARY_PATH = os.environ["LD_LIBRARY_PATH"]
+
+if not TOMOPERI_LD_LIBRARY_PATH in LD_LIBRARY_PATH :
+    os.environ["LD_LIBRARY_PATH"] = ":".join([TOMOPERI_LD_LIBRARY_PATH,LD_LIBRARY_PATH])
+
+
+#print os.environ["LD_LIBRARY_PATH"]
 
 # Get the shared library.
 if os.name == 'nt':
