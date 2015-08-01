@@ -27,10 +27,10 @@ import tomopy.util.dtype as dtype
 
 # Get the shared library.
 if os.name == 'nt':
-    libpath = os.path.abspath(os.path.join(os.path.dirname(__file__), '.', 'libtomoperi_phi.dll'))
+    libpath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'lib/libtomoperi_phi.dll'))
     librecon_phi = ctypes.CDLL(libpath)
 else:
-    libpath = os.path.abspath(os.path.join(os.path.dirname(__file__),'.', 'libtomoperi_phi.so'))
+    libpath = os.path.abspath(os.path.join(os.path.dirname(__file__),'..', 'lib/libtomoperi_phi.so'))
     librecon_phi = ctypes.CDLL(libpath)
 
 # --------------------------------------------------------------------

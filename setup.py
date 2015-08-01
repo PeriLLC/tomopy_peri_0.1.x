@@ -25,7 +25,7 @@ from setuptools.command.install import install
 from distutils.command.build import build
 from subprocess import call
 
-VERSION = '0.1.1' 
+VERSION = '0.1.2' 
 
 
 
@@ -67,39 +67,28 @@ class TomoPeriBuild(build):
         self.execute(compile, [], 'Compiling Tomopy_Peri on Phi')
 
         # copy resulting tool to library build folder
-        self.mkpath(self.build_lib)
+        build_lib_lib=os.path.join(self.build_lib, 'lib')
+        self.mkpath(build_lib_lib)
 
         if not self.dry_run:
             for target in target_files:
-                self.copy_file(target, self.build_lib)
-
-
-class TomoPeriInstall(install):
-    def initialize_options(self):
-        install.initialize_options(self)
-        self.build_scripts = None
-
-    def finalize_options(self):
-        install.finalize_options(self)
-        self.set_undefined_options('build', ('build_scripts', 'build_scripts'))
-
-    def run(self):
-        # run original install code
-        install.run(self)
-
-        # install TomoPeri libraries
-        self.copy_tree(self.build_lib, self.install_lib)
-
+                self.copy_file(target, build_lib_lib)
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
+tomoperic = Extension(
+    name='lib.libtomoperi',
+    extra_compile_args=['-std=c99'],
+    sources=['src/test.c'])
+
 setup_args = dict(
         name = 'tomopy_peri',
         version = VERSION,
-        packages=find_packages(),
+        packages=['tomopy_peri','test'],
         include_package_data=True,
+        ext_modules=[tomoperic],
         description = 'hardware accelerated tomopy algorithms',
         long_description = \
             "Hardware accelleration for tomopy reconstruction algorithms. " \
@@ -119,7 +108,6 @@ setup_args = dict(
         platforms = ['any'],
         cmdclass={
             'build': TomoPeriBuild,
-            'install': TomoPeriInstall,
         },
         options = {'install': {'optimize': 1}, \
                     'bdist_rpm': {'requires': 'tomopy = 0.1.11'}})
