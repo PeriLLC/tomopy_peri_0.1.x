@@ -44,7 +44,7 @@ else:
 # --------------------------------------------------------------------
 
 
-def c_ospml_hybrid(*args):
+def c_ospml_hybrid(args):
     data=args[0]
     recon=args[6]
     # Call C function.
@@ -63,9 +63,9 @@ def c_ospml_hybrid(*args):
         dtype.as_c_float_p(args[7]['reg_par']),
         dtype.as_c_int(args[7]['num_block']),
         dtype.as_c_float_p(args[7]['ind_block']))
+    return recon
 
-
-def c_ospml_quad(*args):
+def c_ospml_quad(args):
     data=args[0]
     recon=args[6]
     # Call C function.
@@ -84,7 +84,7 @@ def c_ospml_quad(*args):
         dtype.as_c_float_p(args[7]['reg_par']),
         dtype.as_c_int(args[7]['num_block']),
         dtype.as_c_float_p(args[7]['ind_block']))
-
+    return recon
 
 def c_pml_hybrid(args):
     data=args[0]
@@ -103,7 +103,7 @@ def c_pml_hybrid(args):
         dtype.as_c_int(args[7]['num_gridy']),
         dtype.as_c_int(args[7]['num_iter']),
         dtype.as_c_float_p(args[7]['reg_par']))
-
+    return recon
 
 def c_pml_quad(args):
     data=args[0]

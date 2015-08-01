@@ -92,7 +92,7 @@ def _init_recon(shape, init_recon, val=1e-6):
 
 
 def _get_func(algorithm,hardware):
-    if hardware == 'xeon_phi' :
+    if hardware == 'Xeon_Phi' :
         if algorithm == 'ospml_hybrid':
             func = xeon_phi.c_ospml_hybrid
         elif algorithm == 'ospml_quad':
