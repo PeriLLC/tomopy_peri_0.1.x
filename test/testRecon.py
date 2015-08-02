@@ -1,5 +1,4 @@
 import tomopy
-import tomopy_peri
 import pylab
 
 obj = tomopy.shepp3d() # Generate an object.
