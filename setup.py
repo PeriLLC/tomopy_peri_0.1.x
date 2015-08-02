@@ -23,9 +23,10 @@ from sys import platform
 from setuptools import setup, Extension, find_packages
 from setuptools.command.install import install
 from distutils.command.build import build
+from distutils.command.build_ext import build_ext
 from subprocess import call
 
-VERSION = '0.1.2' 
+VERSION = '0.1.4' 
 
 
 
@@ -78,18 +79,18 @@ class TomoPeriBuild(build):
 class TomoPeriInstall(install):
     def initialize_options(self):
         install.initialize_options(self)
-        self.build_scripts = None
+#        self.build_scripts = None
 
     def finalize_options(self):
         install.finalize_options(self)
-        self.set_undefined_options('build', ('build_scripts', 'build_scripts'))
+#        self.set_undefined_options('build', ('build_scripts', 'build_scripts'))
 
     def run(self):
         # run original install code
         install.run(self)
 
         # install TomoPeri executables
-        self.copy_tree(self.build_lib, self.install_lib)
+#        self.copy_tree(self.build_lib, self.install_lib)
 
 
 def read(fname):
