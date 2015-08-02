@@ -16,6 +16,7 @@ How TO INSTALL:
 
 use two commands as belowing to build and install 
 >>python setup.py build
+
 >>python setup.py install 
 
 3. Test the package:
