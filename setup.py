@@ -103,7 +103,7 @@ tomoperic = Extension(
 setup_args = dict(
         name = 'tomopy_peri',
         version = VERSION,
-        packages=['tomopy_peri','test'],
+        packages=['tomopy_peri'],
         include_package_data=True,
         ext_modules=[tomoperic],
         description = 'hardware accelerated tomopy algorithms',
@@ -125,7 +125,7 @@ setup_args = dict(
         platforms = ['any'],
         cmdclass={
             'build': TomoPeriBuild,
-            'install': TomoInstall,
+#            'install': TomoPeriInstall,
         },
         options = {'install': {'optimize': 1}, \
                     'bdist_rpm': {'requires': 'tomopy = 0.1.11'}})
