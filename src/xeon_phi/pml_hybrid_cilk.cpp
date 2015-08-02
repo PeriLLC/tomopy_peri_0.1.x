@@ -383,8 +383,9 @@ pml_hybrid_cilk(
         // For each slice
 #pragma offload target(mic) inout (recon : length(dy*ngridx*ngridy)), \
 			in (center : length(dy)), in (sinp, cosp, quadrant : length(dx)),\
-			in (data : length (dx*dy*dz)), in (reg_pars : length(1))
+			in (data : length (dx*dy*dz)), in (reg_pars : length(2))
     {
+//    	printf("reg_pars[0]=%f\n",reg_pars[0]);
 //    	recon[0:dy*ngridx*ngridy]=1e-6;
     	float *simdata =(float*)_mm_malloc((dx*dy*dz)*sizeof(float), 64);
         for (int i=0; i<num_iter; i++)

@@ -74,13 +74,30 @@ class TomoPeriBuild(build):
             for target in target_files:
                 self.copy_file(target, build_lib_lib)
 
+
+class TomoPeriInstall(install):
+    def initialize_options(self):
+        install.initialize_options(self)
+        self.build_scripts = None
+
+    def finalize_options(self):
+        install.finalize_options(self)
+        self.set_undefined_options('build', ('build_scripts', 'build_scripts'))
+
+    def run(self):
+        # run original install code
+        install.run(self)
+
+        # install TomoPeri executables
+        self.copy_tree(self.build_lib, self.install_lib)
+
+
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
 tomoperic = Extension(
     name='lib.libtomoperi',
-    extra_compile_args=['-std=c99'],
     sources=['src/test.c'])
 
 setup_args = dict(
@@ -108,6 +125,7 @@ setup_args = dict(
         platforms = ['any'],
         cmdclass={
             'build': TomoPeriBuild,
+            'install': TomoInstall,
         },
         options = {'install': {'optimize': 1}, \
                     'bdist_rpm': {'requires': 'tomopy = 0.1.11'}})

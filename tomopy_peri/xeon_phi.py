@@ -45,6 +45,8 @@ else:
 
 
 def c_ospml_hybrid(args):
+#    print ('dx dy dz', args[1], args[2], args[3])
+#    print ('kwarg', args[7])
     data=args[0]
     recon=args[6]
     # Call C function.
@@ -66,6 +68,8 @@ def c_ospml_hybrid(args):
     return recon
 
 def c_ospml_quad(args):
+#    print ('dx dy dz', args[1], args[2], args[3])
+#    print ('kwarg', args[7])
     data=args[0]
     recon=args[6]
     # Call C function.
@@ -87,6 +91,7 @@ def c_ospml_quad(args):
     return recon
 
 def c_pml_hybrid(args):
+    print ('args', args)
     data=args[0]
     recon=args[6]
     # Call C function.
@@ -106,6 +111,7 @@ def c_pml_hybrid(args):
     return recon
 
 def c_pml_quad(args):
+#    print ('args', args)
     data=args[0]
     recon=args[6]
     # Call C function.

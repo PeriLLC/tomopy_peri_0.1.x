@@ -18,35 +18,39 @@
 
 import numpy
 from tomopy.recon.algorithm import *
+from tomopy.recon.acceleration import *
 from numpy.testing import assert_allclose
 
 print('Loading Angle...')
-theta=numpy.load('largeTestTheta.npy')
+theta=numpy.load('data/angle.npy')
 
 print('Loading Projection...')
-data=numpy.load('largeTestData.npy')
+data=numpy.load('data/proj.npy')
 
-print('Testing ospml_hybrid...')
-assert_allclose(
-    recon(data, theta, algorithm='ospml_hybrid', num_iter=2),
-    numpy.load('largeTestRecon_OH.npy'), rtol=1e-4)
-print('...ok!')
 
 print('Testing ospml_quad...')
 assert_allclose(
-    recon(data, theta, algorithm='ospml_quad', num_iter=2),
-    numpy.load('largeTestRecon_OQ.npy'), rtol=1e-4)
-print('...ok!')
-
-print('Testing pml_hybrid...')
-assert_allclose(
-    recon(data, theta, algorithm='pml_hybrid', num_iter=2),
-    numpy.load('largeTestRecon_PH.npy'), rtol=1e-4)
+    recon_accelerated(data, theta, algorithm='ospml_quad', num_iter=4),
+    numpy.load('data/pml/ospml_quad.npy'), rtol=1e-4)
 print('...ok!')
 
 print('Testing pml_quad...')
 assert_allclose(
-    recon(data, theta, algorithm='pml_quad', num_iter=2),
-    numpy.load('largeTestRecon_PQ.npy'), rtol=1e-4)
+    recon_accelerated(data, theta, algorithm='pml_quad', num_iter=4),
+    numpy.load('data/pml/pml_quad.npy'), rtol=1e-4)
 print('...ok!')
+
+
+print('Testing ospml_hybrid...')
+assert_allclose(
+    recon_accelerated(data, theta, algorithm='ospml_hybrid', num_iter=4),
+    numpy.load('data/pml/ospml_hybrid.npy'), rtol=1e-4)
+print('...ok!')
+
+print('Testing pml_hybrid...')
+assert_allclose(
+    recon_accelerated(data, theta, algorithm='pml_hybrid', num_iter=4),
+    numpy.load('data/pml/pml_hybrid.npy'), rtol=1e-4)
+print('...ok!')
+
 

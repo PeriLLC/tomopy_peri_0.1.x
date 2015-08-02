@@ -402,7 +402,7 @@ ospml_hybrid_cilk(
         // For each slice
 #pragma offload target(mic) inout (recon : length(dy*ngridx*ngridy)), \
 			in (center : length(dy)), in (sinp, cosp, quadrant : length(dx)),\
-			in (data : length (dx*dy*dz)), in (reg_pars : length(1)),\
+			in (data : length (dx*dy*dz)), in (reg_pars : length(2)),\
 			in (ind_block : length(dx))
     {
 //    	recon[0:dy*ngridx*ngridy]=1e-6;
