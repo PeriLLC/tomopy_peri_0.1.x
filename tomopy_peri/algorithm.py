@@ -26,6 +26,7 @@ import numpy as np
 import tomopy.util.dtype as dtype
 from tomopy.sim.project import angles, get_center
 import tomopy_peri.xeon_phi as xeon_phi
+import tomopy_peri.nvidia_gpu as nvidia_gpu
 import os.path
 
 # --------------------------------------------------------------------
@@ -108,19 +109,30 @@ def _get_func(algorithm,hardware):
             func = xeon_phi.c_pml_quad
         else:
             raise ValueError('Algorithm %s not supported yet!' % (algorithm))
+    elif hardware == 'nVidia_GPU' :
+        if algorithm == 'ospml_hybrid':
+            func = nvidia_gpu.c_ospml_hybrid
+        elif algorithm == 'ospml_quad':
+            func = nvidia_gpu.c_ospml_quad
+        elif algorithm == 'pml_hybrid':
+            func = nvidia_gpu.c_pml_hybrid
+        elif algorithm == 'pml_quad':
+            func = nvidia_gpu.c_pml_quad
+        else:
+            raise ValueError('Algorithm %s not supported yet!' % (algorithm))
     else :
         raise ValueError('Hardware %s not supported yet!' % (hardware))
     return func
 
 def _get_hardware() :
+    libpath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'lib/libtomoperi_gpu.dll'))
+    libpath1 = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'lib/libtomoperi_gpu.so'))
+    if os.path.isfile(libpath) or os.path.isfile(libpath1) :
+        return 'nVidia_GPU';
     libpath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'lib/libtomoperi_phi.dll'))
     libpath1 = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'lib/libtomoperi_phi.so'))
     if os.path.isfile(libpath) or os.path.isfile(libpath1) :
         return 'Xeon_Phi';
-    libpath = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'lib/libtomoperi_cuda.dll'))
-    libpath1 = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'lib/libtomoperi_cuda.so'))
-    if os.path.isfile(libpath) or os.path.isfile(libpath1) :
-        return 'Nvidia_GPU';
 
 def _do_recon(tomo, recon, func, args, kwargs):
     # Zip arguments.
