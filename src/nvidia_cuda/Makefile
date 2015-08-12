@@ -11,43 +11,47 @@
 #    You should have received a copy of the GNU Lesser General Public License
 #    along with TomograPeri.  If not, see <http://www.gnu.org/licenses/>.
 
-CC       = gcc
+CUDADIR ?= /usr/local/cuda
 
 OUT ?= .
 
-CXX      = icpc
+NVCC = $(CUDADIR)/bin/nvcc
 
-CXXFLAGS = -O3 -fPIC
-LNKFLAGS = -ldl -shared
+LIBS = -L$(CUDADIR)/lib64 -lm -lcuda -lcudart
+INCLUDES = -I$(CUDADIR)/include
 
 CCFLAGS = -fPIC
- 
-LIBS     =
-CXXOBJS     = utils_cilk.o pml_quad_cilk.o pml_hybrid_cilk.o ospml_quad_cilk.o ospml_hybrid_cilk.o
-CXXSRCS     = utils_cilk.cpp pml_quad_cilk.cpp pml_hybrid_cilk.cpp ospml_quad_cilk.cpp ospml_hybrid_cilk.cpp
+LNKFLAGS = -ldl -shared
+
+CUOBJS = utils_cuda.o pml_quad_cuda.o ospml_quad_cuda.o pml_hybrid_cuda.o ospml_hybrid_cuda.o pml_weight_cuda.o 
+CUSRCS = utils_cuda.cu pml_quad_cuda.cu ospml_quad_cuda.cu pml_hybrid_cuda.cu ospml_hybrid_cuda.cu pml_weight_cuda.cu
 CCOBJS     = recon.o 
 CCSRCS     = recon.cpp
 TESTSRCS   = ../main.cpp ../cnpy/cnpy.cpp
 TESTOBJS   = main.o cnpy.o
 
-TARGET   = libtomoperi_phi.so
-TEST    = tomoperi_phi_test.exe
+TARGET   = libtomoperi_gpu.so
+TEST    = tomoperi_gpu_test.exe
 
-$(TARGET):	$(CXXOBJS) $(CCOBJS)
+$(TARGET):	$(CCOBJS) $(CUOBJS)
 	mkdir -p $(OUT)
-	$(CXX) -o $(OUT)/$(TARGET) $(CXXOBJS) $(CCOBJS) $(LIBS) $(LNKFLAGS) 
+	$(CC) -o $(OUT)/$(TARGET) $(CUOBJS) $(CCOBJS) $(LIBS) $(LNKFLAGS) 
 
 $(CCOBJS):	$(CCSRCS)
-	$(CC) -c $(CCFLAGS) $(CCSRCS)
+	$(CC) -c $(CCFLAGS) $(CCSRCS) $(INCLUDES)
 
-$(CXXOBJS):	$(CXXSRCS)
-	$(CXX) -c $(CXXFLAGS) $(CXXSRCS)
+$(CUOBJS):	$(CUSRCS)
+	$(NVCC) -c -arch=sm_20 $(CUSRCS) --compiler-options '-fPIC'
 
 $(TEST):	$(TARGET) $(TESTSRCS)
-	$(CC) -o $(OUT)/$(TEST) $(TESTSRCS)  -ldl -Wl,-rpath '-Wl,$$ORIGIN' -L$(OUT) -ltomoperi_phi -lstdc++
+	$(CC) -o $(OUT)/$(TEST) $(TESTSRCS)  -ldl -Wl,-rpath '-Wl,$$ORIGIN' -L$(OUT) -ltomoperi_gpu -lstdc++
+
+all:	$(TARGET)
 
 test:	$(TEST)
 
 clean:
-	rm -f $(CCOBJS) $(CXXOBJS) $(TESTOBJS) $(TARGET) $(TEST)
+	rm -f $(CCOBJS) $(CUOBJS) $(TESTOBJS) $(TARGET) $(TEST)
+
+
 

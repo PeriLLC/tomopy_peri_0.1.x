@@ -19,7 +19,7 @@
 #include <math.h>
 #include "recon.h"
 
-#include "../cnpy/cnpy.h"
+#include "cnpy/cnpy.h"
 
 using namespace std;
 using namespace cnpy;
@@ -72,19 +72,25 @@ double get_cpu_time(){
 }
 #endif
 
-
-int assert_allclose(float *x, float *y, int len, float rtol=1e-5)
+int assert_allclose(float *x, float *y, int len, float rtol=1e-5, float atol=1e-5)
 {
-	int ret=0;
+	int rete=0;
+	int retn=0;
 	for (int i=0;i<len;i++)
 	{
-		if (fabs(x[i]-y[i])>rtol)
+		if ((isnan(x[i])>0)||(isnan(y[i])>0))
+			retn ++;
+		else if (fabs(x[i]-y[i])>atol+rtol*min(fabs(x[i]),fabs(y[i])))
 		{
-			ret ++;
+			rete ++;
 //			cout << i << "->" <<x[i]<<":"<<y[i]<<endl;
+			if (rete<5)
+				printf("i=%d,x=%f,y=%f\n",i,x[i],y[i]);
 		}
 	}
-	return ret;
+	if (retn!=0)
+		printf("warning: nan %d, err %d\n",retn,rete);
+	return rete+retn;
 }
 
 
@@ -93,11 +99,11 @@ int loadTestData(bool largeSet, int *pdx, int *pdy, int *pdz, int *pgridx, int *
 		float **  ppml_hybrid_recon,float **  ppml_quad_recon)
 {
 	NpyArray data_npy =
-			npy_load(largeSet?"../../test/data/pml/largeTestData.npy"
-					: "../../test/data/pml/proj.npy");
+			npy_load(largeSet?"../../test/data/largeTestData.npy"
+					: "../../test/data/proj.npy");
 	NpyArray theta_npy =
-			npy_load(largeSet?"../../test/data/pml/largeTestTheta.npy"
-					: "../../test/data/pml/angle.npy");
+			npy_load(largeSet?"../../test/data/largeTestTheta.npy"
+					: "../../test/data/angle.npy");
 	NpyArray ospml_hybrid_npy =
 			npy_load(largeSet?"../../test/data/pml/largeTestRecon_OH.npy"
 					: "../../test/data/pml/ospml_hybrid.npy");
@@ -285,7 +291,7 @@ int testData( bool largeSet){
 int main(int argc, char *argv[])
 {
 	int opt = 0;
-	bool isLarge = false;
+	bool isLarge = true;
 	while ((opt = getopt(argc, argv, "s:")) != -1) {
 		isLarge= ((opt=='s')&&(optarg[0]=='l'));
 	}		

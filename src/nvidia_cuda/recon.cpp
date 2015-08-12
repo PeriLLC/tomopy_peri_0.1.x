@@ -15,7 +15,7 @@
 
 
 #include "../recon.h"
-#include "pml_cilk.h"
+#include "pml_cuda.h"
 
 extern "C" {
 
@@ -35,7 +35,7 @@ ospml_quad(
     int num_block,
     float *ind_block)
 {
-ospml_quad_cilk(
+ospml_quad_cuda(
     data, dx, dy, dz, center, theta, recon,
     ngridx, ngridy, num_iter, reg_pars,
     num_block, ind_block);
@@ -57,7 +57,7 @@ ospml_hybrid(
     int num_block,
     float *ind_block)
 {
-ospml_hybrid_cilk(
+ospml_hybrid_cuda(
     data, dx, dy, dz, center, theta, recon,
     ngridx, ngridy, num_iter, reg_pars,
     num_block, ind_block);
@@ -78,7 +78,7 @@ pml_quad(
     int num_iter,
     float *reg_pars)
 {
-pml_quad_cilk(
+pml_quad_cuda(
     data, dx, dy, dz, center, theta, recon,
     ngridx, ngridy, num_iter, reg_pars);
 }
@@ -98,7 +98,7 @@ pml_hybrid(
     int num_iter,
     float *reg_pars)
 {
-pml_hybrid_cilk(
+pml_hybrid_cuda(
     data, dx, dy, dz, center, theta, recon,
     ngridx, ngridy, num_iter, reg_pars);
 }
