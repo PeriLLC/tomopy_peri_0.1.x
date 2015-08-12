@@ -26,15 +26,35 @@ from distutils.command.build import build
 from distutils.command.build_ext import build_ext
 from subprocess import call
 
-VERSION = '0.1.4' 
+VERSION = '0.1.5' 
 
 
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
-TOMOPERI_PATH = os.path.join(BASEPATH, 'src/xeon_phi')
+TOMOPERI_PATH_PHI = os.path.join(BASEPATH, 'src/xeon_phi')
+TOMOPERI_PATH_GPU = os.path.join(BASEPATH, 'src/nvidia_cuda')
 
+
+def which(program):
+    import os
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+
+    return None
 
 class TomoPeriBuild(build):
+
     def run(self):
         # run original build code
         build.run(self)
@@ -45,27 +65,39 @@ class TomoPeriBuild(build):
         cmd = [
             'make',
             'OUT=' + build_path,
-            'V=' + str(self.verbose),
         ]
-
-        options = [
-            'DEBUG=n',
-            'ENABLE_SDL=n',
-        ]
-        cmd.extend(options)
 
         targets = ['test']
         cmd.extend(targets)
+        target_files = []
+        buildjobs = 0
 
-        target_files = [os.path.join(build_path, 'libtomoperi_phi.so'),os.path.join(build_path, 'tomoperi_phi_test.exe')]
+        if which('icpc') is not None:
 
+            target_files.extend([os.path.join(build_path, 'libtomoperi_phi.so'),os.path.join(build_path, 'tomoperi_phi_test.exe')])
 
-        print cmd
+            print cmd
 
-        def compile():
-            call(cmd, cwd=TOMOPERI_PATH)
+            def compile_phi():
+                call(cmd, cwd=TOMOPERI_PATH_PHI)
 
-        self.execute(compile, [], 'Compiling Tomopy_Peri on Phi')
+            self.execute(compile_phi, [], 'Compiling Tomopy_Peri on Phi')
+            buildjobs = buildjobs + 1
+
+        if which('nvcc') is not None:
+
+            target_files.extend([os.path.join(build_path, 'libtomoperi_gpu.so'),os.path.join(build_path, 'tomoperi_gpu_test.exe')])
+
+            print cmd
+
+            def compile_phi():
+                call(cmd, cwd=TOMOPERI_PATH_GPU)
+
+            self.execute(compile_phi, [], 'Compiling Tomopy_Peri on Gpu')
+            buildjobs = buildjobs + 1
+
+        if buildjobs == 0 :
+            raise ValueError ('No phi or gpu development tools found!')
 
         # copy resulting tool to library build folder
         build_lib_lib=os.path.join(self.build_lib, 'lib')
