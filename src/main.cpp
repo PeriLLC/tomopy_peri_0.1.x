@@ -216,7 +216,7 @@ int testData( bool largeSet){
 		ind_block[i]=i;
 
 
-	cout << "-----------------MIC---------------------" << endl;
+	cout << "-----------------DEVICE---------------------" << endl;
 
 	for (int i=0;i<recon_len;i++)
 		recon[i]=1e-6;
