@@ -38,7 +38,7 @@ A example on recon and view result
 How TO USE:
 
 1. No extra code needed. You many just simply use recon_accelerated function to replace recon function in your code.
-2. Some extra parameters are for different hardware platform. Currently only Xeon_Phi is supported.
+2. Some extra parameters are for choosing different hardware platform, such as Xeon_Phi or nVidia_GPU.
 
 
 8.12.2015
