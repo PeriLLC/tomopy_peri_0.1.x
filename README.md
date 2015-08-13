@@ -4,7 +4,7 @@ The hardware accellerated implementaion for tomopy reconstruction algorithms.
 The support algorithms and hardware platforms:
 
 1. pml_quad, pml_hybrid, ospml_quad, ospml_hybrid algorithms
-2. Intel Xeon Phi Co-processor and vVidia GPGPU
+2. Intel Xeon Phi Co-processor and nVidia GPGPU
 
 How TO INSTALL:
 
