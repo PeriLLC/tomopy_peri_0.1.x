@@ -15,12 +15,14 @@ CUDADIR ?= /usr/local/cuda
 
 OUT ?= .
 
+CC = gcc
+
 NVCC = $(CUDADIR)/bin/nvcc
 
 LIBS = -L$(CUDADIR)/lib64 -lm -lcuda -lcudart
 INCLUDES = -I$(CUDADIR)/include
 
-CCFLAGS = -fPIC
+CCFLAGS = -fPIC -Wall -fno-strict-aliasing
 LNKFLAGS = -ldl -shared
 
 CUOBJS = utils_cuda.o pml_quad_cuda.o ospml_quad_cuda.o pml_hybrid_cuda.o ospml_hybrid_cuda.o pml_weight_cuda.o 
@@ -35,7 +37,7 @@ TEST    = tomoperi_gpu_test.exe
 
 $(TARGET):	$(CCOBJS) $(CUOBJS)
 	mkdir -p $(OUT)
-	$(CC) -o $(OUT)/$(TARGET) $(CUOBJS) $(CCOBJS) $(LIBS) $(LNKFLAGS) 
+	$(NVCC) -o $(OUT)/$(TARGET) $(CUOBJS) $(CCOBJS) $(LIBS) $(LNKFLAGS) 
 
 $(CCOBJS):	$(CCSRCS)
 	$(CC) -c $(CCFLAGS) $(CCSRCS) $(INCLUDES)

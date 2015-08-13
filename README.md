@@ -4,13 +4,13 @@ The hardware accellerated implementaion for tomopy reconstruction algorithms.
 The support algorithms and hardware platforms:
 
 1. pml_quad, pml_hybrid, ospml_quad, ospml_hybrid algorithms
-2. Intel Xeon Phi Co-processor.
+2. Intel Xeon Phi Co-processor and vVidia GPGPU
 
 How TO INSTALL:
 
 0. Make sure you have Intel Xeon Phi Co-processor mounted and MPSS, Intel parallel studio installed and configured.
 
-1. Install tomopy, this package is for > 0.1.11 version
+1. Install tomopy, this package is for >= 0.1.11 version
 
 2. Install tomopy_peri:
 
@@ -41,4 +41,4 @@ How TO USE:
 2. Some extra parameters are for different hardware platform. Currently only Xeon_Phi is supported.
 
 
-8.2.2015
+8.12.2015

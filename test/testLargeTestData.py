@@ -20,6 +20,11 @@ import numpy
 from tomopy.recon.acceleration import *
 from tomopy.recon.algorithm import *
 from numpy.testing import assert_allclose
+from tomopy_peri.detect_hardware import detect_hardware
+
+ihardware = detect_hardware()
+
+print ihardware
 
 print('Loading Angle...')
 theta=numpy.load('data/largeTestTheta.npy')
@@ -27,30 +32,36 @@ theta=numpy.load('data/largeTestTheta.npy')
 print('Loading Projection...')
 data=numpy.load('data/largeTestData.npy')
 
-print('Testing pml_quad...')
-assert_allclose(
-    recon_accelerated(data, theta, algorithm='pml_quad', num_iter=2),
-    numpy.load('data/pml/largeTestRecon_PQ.npy'), rtol=1e-4, atol=1e-5)
-print('...ok!')
+print('Loading Expected result...')
+pq=numpy.load('data/pml/largeTestRecon_PQ.npy')
+oq=numpy.load('data/pml/largeTestRecon_OQ.npy')
+ph=numpy.load('data/pml/largeTestRecon_PH.npy')
+oh=numpy.load('data/pml/largeTestRecon_OH.npy')
 
-print('Testing ospml_quad...')
-assert_allclose(
-    recon_accelerated(data, theta, algorithm='ospml_quad', num_iter=2),
-    numpy.load('data/pml/largeTestRecon_OQ.npy'), rtol=1e-4, atol=1e-5)
-print('...ok!')
+for i in ihardware:
+    print('Testing pml_quad on %s...' % i)
 
+    assert_allclose(
+        recon_accelerated(data, theta, algorithm='pml_quad', hardware=i, num_iter=2),
+        pq, rtol=1e-4, atol=1e-5)
+    print('...ok!')
 
-print('Testing pml_hybrid...')
-assert_allclose(
-    recon_accelerated(data, theta, algorithm='pml_hybrid', num_iter=2),
-    numpy.load('data/pml/largeTestRecon_PH.npy'), rtol=1e-4, atol=1e-5)
-print('...ok!')
+    print('Testing ospml_quad on %s...' % i)
+    assert_allclose(
+        recon_accelerated(data, theta, algorithm='ospml_quad', hardware=i, num_iter=2),
+        oq, rtol=1e-4, atol=1e-5)
+    print('...ok!')
 
+    print('Testing pml_hybrid on %s...' % i)
+    assert_allclose(
+        recon_accelerated(data, theta, algorithm='pml_hybrid', hardware=i, num_iter=2),
+        ph, rtol=1e-4, atol=1e-5)
+    print('...ok!')
 
-print('Testing ospml_hybrid...')
-assert_allclose(
-    recon_accelerated(data, theta, algorithm='ospml_hybrid', num_iter=2),
-    numpy.load('data/pml/largeTestRecon_OH.npy'), rtol=1e-4, atol=1e-5)
-print('...ok!')
+    print('Testing ospml_hybrid on %s...' % i)
+    assert_allclose(
+        recon_accelerated(data, theta, algorithm='ospml_hybrid', hardware=i, num_iter=2),
+        oh, rtol=1e-4, atol=1e-5)
+    print('...ok!')
 
 
